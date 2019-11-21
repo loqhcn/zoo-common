@@ -30,11 +30,11 @@
   <button type="button" id="submit">提交</button>
 </form>
 
-<link rel="stylesheet" href="/js/jquery.form.css">
+<link rel="stylesheet" href="./js/jquery.form.css">
 
 <script>
   console.log('script');
-  require(['/js/jquery.form.js'], function () {
+  require(['./js/jquery.form.js'], function () {
     $('#submit').click(function () {
       $('form').validate();
     })
