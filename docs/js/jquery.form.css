@@ -1,0 +1,24 @@
+.validate-field{
+    
+}
+.validate-err{
+    position: relative;
+}
+.validate-err::after{
+    content: "123";
+    font-size: 13px;
+    color: red;
+    position: absolute;
+    bottom: 100%;
+    z-index: 111;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-color: red;
+}
+.validate-err input{
+    border-color: red;
+}
+input.validate-err{
+    border-color: red;
+}
