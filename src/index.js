@@ -10,27 +10,26 @@ var plugins = {
 
 console.log('index.js 页面噢噢噢');
 
-$('#submit').click(function () {
-
+$('#submit').click(function (e) {
+  var data = {};
+  $('#demo1').find('input').each(function (index, el) {
+    data[$(el).attr('name')] = $(el).val();
+  })
   var validate = new Validate({
-    'username|用户名': 'require|max:1 ',
-    'age|年龄': 'require|integer',
+    'lang|长度': 'require|in:13,14,15,16,17,18',
     'password|密码': 'require|>:1',
-    'lang|长度': 'in:13,14,15,16,17,18|require',
-    'xiongwei|身高': ''
+    'username|用户名': 'require|max:6',
+    'age|年龄': 'require|integer',
+    'shengao|身高': 'integer'
   }, {
     'username.require': '用户名不能为空',
     'age.require': '年龄必须填写',
     'password.>': '密码必须大于1'
   });
 
-  if (!validate.check({
-    username: 'as',
-    age: 3.1415926,
-    password: '0',
-    lang: 1
-  }, true)) {
+  if (!validate.check(data, true)) {
+    alert(validate.getError());
     console.log(validate.getErrors());
   }
-
+  e.preventDefault();
 });

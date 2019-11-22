@@ -5,46 +5,39 @@ const webpack = require('webpack');
 
 module.exports = {
     entry: {
-        index: "./src/index.js",
-        form: "./src/form.js",
-        validate: "./src/validate/dev.js",
-
+        form: path.resolve(process.cwd(), './src/validate/form.js')
     },
     output: {
         filename: '[name].js',
-        path: path.resolve(__dirname, 'dist/test'),
-        //配置部署目录
-        // publicPath: '/',
-        // library: 'Validate',
-        // libraryTarget: 'umd'
+        path: path.resolve(process.cwd(), './dist/js'),
+        library: '',
+        libraryTarget: 'umd'
     },
     //开发服务
     devServer: {
-        contentBase: './dist'
+        contentBase: path.resolve(process.cwd(), './dist'),
+    },
+    externals: {
+        jquery: {
+            commonjs: 'jquery',
+            commonjs2: 'jquery',
+            amd: 'jquery',
+            root: '$'
+        }
     },
     plugins: [
-        //清理dist
-        new CleanWebpackPlugin(),
+        // //清理dist
+        // new CleanWebpackPlugin(),
 
         //打包form
         new HtmlWebpackPlugin({
-            template: 'public/index.html',
+            template: path.resolve(process.cwd(), './public/index.html'),
             filename: 'index.html',
             title: 'Zoo Coffee common',
             chunks: [
                 'index'
             ],
         }),
-        //validate页面
-        new HtmlWebpackPlugin({
-            template: 'public/validate.html',
-            filename: 'validate.html',
-            title: 'Zoo Coffee Validate',
-            chunks: [
-                'validate'
-            ],
-        }),
-
 
         //注册jquery
         new webpack.ProvidePlugin({

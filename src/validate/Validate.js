@@ -2,75 +2,72 @@ class Validate {
 
     constructor(rule, msg) {
         this.rule = rule;
-        this.messageRuleSetting = msg;
+        this.messageRuleSetting = msg || {};
         this.errorMsg = 'error';
         this.errorMsgs = [];
+        this.debug = false;
 
         //内置验证规则
         this.validateRules = {
             email: /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/,
-            'number': /^-?\d*\.?\d+$/,
-            'chinese': /^[\u4e00-\u9fa5]+$/,
-            'idcard': /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
-            'phone': /^[1][3-9][0-9]{9}$/,
+            number: /^-?\d*\.?\d+$/,
+            chinese: /^[\u4e00-\u9fa5]+$/,
+            idcard: /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
+            mobile: /^[1][3-9][0-9]{9}$/,
             //必选
             require(val) {
                 return !(val === null || val === undefined || val === '');
             },
-            max(val, pmax) {
-                // console.log(val, pmax, JSON.stringify(val).length > parseInt(pmax));
-                return !(JSON.stringify(val).length > parseInt(pmax));
+            max(v, pmax) {
+                return !(('' + v).length > parseInt(pmax));
             },
             min(v, vmin) {
-                return !(JSON.stringify(val).length < parseInt(pmax));
+                return !(('' + v).length < parseInt(vmin));
             },
 
             //大于
-            '<': () => {
-                this.validateRules.lt(...arguments);
+            '<': function () {
+                return this.validateRules.lt(...arguments);
             },
-            '>': () => {
-                this.validateRules.gt(...arguments);
+            '>': function () {
+
+                return this.validateRules.gt(...arguments);
             },
-            '<=': () => {
-                this.validateRules.elt(...arguments);
+            '<=': function () {
+                return this.validateRules.elt(...arguments);
             },
-            '>=': () => {
-                this.validateRules.egt(...arguments);
+            '>=': function () {
+                return this.validateRules.egt(...arguments);
             },
-            lt($val, p) {
-                return parseFloat($val) > parseFloat(p);
+            lt(v, p) {
+                return parseFloat(v) < parseFloat(p);
             },
-            gt(val, p) {
-                return parseFloat(val) > parseFloat(p);
+            gt(v, p) {
+
+                return parseFloat(v) > parseFloat(p);
             },
-            elt(val, p) {
-                return parseFloat(val) <= parseFloat(p);
+            elt(v, p) {
+                return parseFloat(v) <= parseFloat(p);
             },
-            egt(val, p) {
-                return parseFloat(val) >= parseFloat(p);
+            egt(v, p) {
+                return parseFloat(v) >= parseFloat(p);
             },
             //整数
-            integer(val) {
-                return (!isNaN(val)) && (parseInt(val) == parseFloat(val));
+            integer(v) {
+                return (!isNaN(v)) && (parseInt(v) == parseFloat(v));
             },
-            'in':()=>{
+            'in': function () {
                 for (let i = 1, len = arguments.length; i < len; i++)
                     if (arguments[0] == arguments[i])
                         return true;
                 return false;
             },
-            notIn:()=>{
+            notIn: function () {
                 for (let i = 1, len = arguments.length; i < len; i++)
                     if (arguments[0] == arguments[i])
                         return false;
                 return true;
             }
-
-        }
-
-        //内置消息
-        this.messagesRule = {
 
         }
 
@@ -80,7 +77,7 @@ class Validate {
             'chinese': '$0只能是中文',
             'email': '$0格式不正确',
             'idcard': '$0格式不正确',
-            'phone': '$0格式不正确',
+            'mobile': '$0格式不正确',
             'require': '$0不能为空',
             'length': '$0长度只能是$1到$2个字符',
 
@@ -101,12 +98,13 @@ class Validate {
             'between': '$0值只能在$1到$2之间',
 
             'in': '$0只能取$n',
-            'notIn':'$0不能在$n之间',
-            
+            'notIn': '$0不能在$n之间',
+
             'confirm': '$0与:1不一致'
         };
         this.data = {};
     }
+
 
     /**
      * 扩展规则
@@ -143,47 +141,63 @@ class Validate {
     /** 验证
      * 
      * @param {*} data 
-     * @param {Bool} allField 是否验证所有
+     * @param {Bool} allField 是否验证 所有字段?
+     * @param {Bool} allField 是否验证 字段里的 所有规则?
      */
-    check(data, allField) {
+    check(data, allField, allRule) {
         //验证错误列表
         let errors = [];
         this.errorMsgs = [];
         this.errorMsg = '';
         allField = allField || false;
+        allRule = allRule || false;
+
         this.data = data;
 
         for (var x in this.rule) {
             let pName = x, pNameShow = pName;
             let rule = this.rule[x];
 
+            //参数中文名
             let pNameParse = pName.split('|');
             if (pNameParse.length > 1) {
                 pName = pNameParse[0]
                 pNameShow = pNameParse[1]
             }
 
-
             //解析规则
             var rules = this.parse(rule);
+            if (this.debug) {
+                console.log('解析规则', rules)
+            }
             //验证规则
+            let rulesMatchLog = [];
             for (var vName in rules) {
-
+                rulesMatchLog.push('开始验证' + vName);
                 let vArgs = rules[vName].args; //用于验证判断的参数
-                //没有填写可以不验证的
+
                 if (!this.validateRules.require(data[pName]) && !rules['require']) {
+                    rulesMatchLog.push('没有填写可以不验证的');
                     continue;
                 }
                 // console.log(vName,pName,data[pName]);
                 // console.log(this.validateRules[vName],typeof this.validateRules[vName]);
                 if (!this.validateRules[vName]) {
                     console.log(`未定义验证规则${vName}`);
+                    rulesMatchLog.push(`未定义验证规则${vName}`);
                     continue;
                 }
                 let ret = (typeof this.validateRules[vName] == "function") ?
                     this.validateRules[vName].apply(this, [data[pName], ...vArgs]) :
                     this.validateRules[vName].test(data[pName]);
-                //读取错误消息
+
+                rulesMatchLog.push({
+                    vArgs: vArgs,
+                    data: data[pName],
+                    validate: vName,
+                    status: ret ? '成功' : '失败'
+                });
+                //验证失败读取错误消息
                 if (!ret) {
 
                     let msg = `${pNameShow}参数错误`
@@ -213,6 +227,7 @@ class Validate {
                             })
                         }
                     }
+                    // 错误消息记录
                     // let msg = this.message[vName] ? this.message[vName] : `${vName}参数错误`;
                     this.errorMsgs.push(
                         {
@@ -223,13 +238,19 @@ class Validate {
                             args: vArgs,
                         }
                     )
-                    if (!allField) {
-                        break
-                    }
+
+                    if (!allRule)
+                        break;
                 }
+            }
+            if (this.debug) {
+                console.log(rulesMatchLog);
             }
             if (this.errorMsgs.length) {
                 this.errorMsg = this.errorMsgs[0].msg;
+                if (!allField) {
+                    break;
+                }
             }
         }
 
@@ -244,15 +265,16 @@ class Validate {
     getError() {
         return this.errorMsg;
     }
-
+    //所有错误消息 当check(data,true)时才会验证所有的
     getErrors() {
         return this.errorMsgs;
     }
-
     //错误的字段
     getErrorField() {
-
+        if (!this.errorMsgs.length) return false;
+        return this.errorMsgs[0].field;
     }
+
     /**
      * 解析规则配置, 生成一个规则配置
      */
