@@ -1,0 +1,15 @@
+.validate-err {
+    border-color: red;
+}
+
+.validate-err-msg {
+    margin: 0;
+    position: relative;
+}
+
+.validate-err-msg-content {
+    position: absolute;
+    width: 100%;
+    color: red;
+    width: max-content;
+}

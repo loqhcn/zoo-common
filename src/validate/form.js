@@ -1,11 +1,13 @@
+
 import Validate from './Validate.js'
+import './form.css'
 
 class FormValidate {
     constructor() {
         this.debug = false;
         this.option = {};
 
-        //某些标签的数据进行特殊处理
+        //某些标签的数据进行特殊处理 否则验证结果不能达到预期
         this.parseRuleData = {
             radio: function (dataEl) {
                 let radios = $(dataEl)
@@ -24,7 +26,6 @@ class FormValidate {
 
                 return checkbox.checked ? true : null;
             }
-
         }
         //标签名称与验证名称及验证配置关联
         this.rules = {
@@ -48,6 +49,27 @@ class FormValidate {
             number: { rule: 'number' },
         }
 
+        /**
+         * 不通元素的已完善的监听方法
+         * 
+         */
+        this.componentsActions = {
+            'input': 'blur',
+            'checkbox': 'change',
+            'select-one': 'change',
+            'select': 'change',
+            'radio': 'change',
+        }
+
+
+    }
+
+    /**
+     * 处理元素的类型
+     * 
+     */
+    getHandleType(el) {
+
     }
 
     setOption(option) {
@@ -58,6 +80,8 @@ class FormValidate {
      * 
      * @param {*} el 
      * @param {*} valSelecter jquery选择器,指定value读取的位置
+     * 
+     * @return 详细验证配置对象
      */
     parseRule(el, valSelecter) {
         el = $(el)[0];
@@ -87,10 +111,10 @@ class FormValidate {
         let elName = $(el).attr('name');
         let elNameShow = $(el).attr('name-show');
         let elVal = $(el).val();
-        //验证元素的值
 
-        let dataEl = valSelecter ? valSelecter : el;
-        let valSelecterType = $(dataEl).attr('type');
+        //值得容器:selecter
+        let dataEl = valSelecter ? (valSelecter) : el;
+        let valSelecterType = $(dataEl).type || $(dataEl)[0].type;
 
         if (valSelecter) {
             elName = $(valSelecter).attr('name');
@@ -140,14 +164,30 @@ class FormValidate {
             ruleStrs.push(`${ruleParseData[x]['ruleName']}${valstr}`)
         }
 
+
+        //
+        // console.log('valSelecterType:'+valSelecterType)
+        let actionName = this.componentsActions[valSelecterType] ? this.componentsActions[valSelecterType] : 'blur';
+
+
         return {
             error: false,
+            //验证信息位置
             el: el,
+            dataEl: dataEl,
+            //你name
             name: elName,
+            //显示name
             elNameShow: elNameShow,
+            //元素的值
             val: elVal,
+            //验证规则
             rule: ruleStrs.join('|'),
+            //验证规则对象
             ruleObj: ruleObj,
+            // 当元素验证错误 完善后再次出发验证的事件 
+            actionName: actionName,
+
             ruleParseData
         }
     }
@@ -177,12 +217,12 @@ class FormValidate {
             //移除错误
             this.option.removeAction ? this.option.removeError(el) : this.removeError(el);
 
-            //显示新错误
+            //显示新错误 或 验证成功
             if (!validate.check(data, true)) {
                 let errmsg = validate.getError();
                 this.option.showError ? this.option.showError(el, errmsg) : this.showError(el, errmsg);
-
             }
+
         })
 
     }
@@ -224,6 +264,7 @@ class FormValidate {
         if (el.validateError == true) {
             let err = $(el).next();
             err.remove();
+            el.validateError = false;
         }
     }
 
@@ -236,6 +277,7 @@ class FormValidate {
 
     /**
      * 解析需要处理的节点
+     * 
      * @param {el Array} items
      * 
      * @return { validateRules验证规则, validateFieldsEl与验证关联的el, data数据  }
@@ -261,6 +303,8 @@ class FormValidate {
         let validateRules = {}
         //验证节点 与 名称关联 方便显示消息 
         let validateFieldsEl = {}
+        let validateFieldsAction = {};
+
         let data = {}
         for (let index = 0; index < elRule.length; index++) {
             const element = elRule[index];
@@ -269,15 +313,36 @@ class FormValidate {
             validateRules[element.name + elNameShow] = element.rule
             //data
             data[element.name] = element.val
-            //关联
+            //关联信息
             validateFieldsEl[element.name] = element.el
+            validateFieldsAction[element.name] = element.actionName
+
         }
+
         return {
+            //验证规则 Validate.js参数
             validateRules,
+            //关联字段的el
             validateFieldsEl,
-            data
+            //数据列表
+            data,
+            validateFieldsAction
+        }
+
+    }
+
+    /**
+     * 获取注册事件类型
+     * 
+     */
+    getFieldActionType() {
+        let actionSet = {
+            'input': 'blur',
+            'radio': 'change',
+            'select': 'change',
         }
     }
+
 }
 
 
@@ -297,15 +362,16 @@ $.fn.validateForm = function (option) {
     formValidate.debug = option.debug;
     formValidate.setOption(option);
 
+    //移除所有显示错误
     formValidate.removeAllError(this);
-
 
     //解析验证的节点
     var items = $(`.${option.validateClass},input,select`);
     const {
         validateRules,
         validateFieldsEl,
-        data
+        data,
+        validateFieldsAction
     } = formValidate.parseValidateElItem(items);
 
     //验证
@@ -313,29 +379,21 @@ $.fn.validateForm = function (option) {
 
     //错误显示
     if (!validate.check(data, true)) {
-
         let errors = validate.getErrors();
-        // console.log(errors);
+        console.log(validateFieldsAction);
         for (let index = 0; index < errors.length; index++) {
             const err = errors[index];
-
             //错误消息
             let errmsg = $(validateFieldsEl[err.field]).attr('errormsg') || err.msg;
-
             //展示错误
             option.showError ? option.showError(validateFieldsEl[err.field], errmsg)
                 : formValidate.showError(validateFieldsEl[err.field], errmsg);
 
-
             //注册重新验证事件
-            formValidate.registerValidate(validateFieldsEl[err.field], 'blur', option.removeError);
+            formValidate.registerValidate(validateFieldsEl[err.field], validateFieldsAction[err.field] || 'blur', option.removeError);
 
         }
-
-        //alert(validate.getError());
-
     }
-
 }
 
 export default formValidate;

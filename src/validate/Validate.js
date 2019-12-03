@@ -67,23 +67,57 @@ class Validate {
                     if (arguments[0] == arguments[i])
                         return false;
                 return true;
-            }
-
+            },
+            float: function (v) {
+                return /^[-+]?[0-9]*\.?[0-9]*$/.test(v);
+            },
+            bool: function (v) {
+                return this.validateRules.boolean(v);
+            },
+            boolean(v) {
+                if (typeof v == 'boolean') {
+                    return true;
+                }
+                if (v == 'true' || v == 'false') {
+                    return true;
+                }
+                return false;
+            },
+            array(v) {
+                return Array.isArray(v);
+            },
+            accepted(v) {
+                return (v == 'yes' || v == 'on' || parseInt(v) == 1);
+            },
+            length(v, min, max) {
+                if (!max) {
+                    return (v + '').length == parseInt(min);
+                }
+                return ((v + '').length >= min && (v + '').length <= max);
+            },
         }
 
         this.message = {
             'number': '$0只能是数字',
             'integer': '$0只能填整数',
-            'chinese': '$0只能是中文',
+            'float': '$0只能浮点数',
+
+            'boolean': '$0只能填布尔值',
+            'bool': '$0只能填布尔值',
             'email': '$0格式不正确',
+            'array': '$0数据类型不正确',
+            'accepted': '$0必须同意',
+
+            'chinese': '$0只能是中文',
+
             'idcard': '$0格式不正确',
             'mobile': '$0格式不正确',
             'require': '$0不能为空',
             'length': '$0长度只能是$1到$2个字符',
+            'length:1': '$0长度只能是$1',
 
             'min': '$0的长度至少$1个',
             'max': '$0的长度不能超过$1个',
-
             'eq': '$0只能是$1',
             'neq': '$0不能为$1',
             'gt': '$0需要大于$1',
@@ -212,8 +246,8 @@ class Validate {
                     //默认配置消息
                     else {
                         if (this.message[vName]) {
-                            msg = this.message[vName].repl
-                            msg = this.message[vName].replace(/\$([\din])+/g, (s, r) => {
+                            let vArgsLength = vArgs.length;
+                            msg = (this.message[vName + ":" + vArgsLength] || this.message[vName]).replace(/\$([\din])+/g, (s, r) => {
                                 if (s == '$0')
                                     return pNameShow;
                                 //in判断消息

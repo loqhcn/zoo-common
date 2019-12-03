@@ -1,6 +1,6 @@
 {
   "name": "zoo-common",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "build:form": "webpack --config build/form.webpack.config.js",
 
     "build:css": "sass ./src/style/index.scss ./dist/css/index.css",
-    "start": "webpack-dev-server --open"
+    "serve": "webpack-dev-server --open"
   },
   "keywords": [],
   "author": "",
