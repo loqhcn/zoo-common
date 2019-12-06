@@ -10,8 +10,6 @@
 
 <body>
     <style>
-    
-
         form>div {
             margin-top: 30px;
             display: block;
@@ -24,9 +22,19 @@
     <h1>开发表单验证</h1>
     <div id="app"></div>
     <form action="" id="from1">
-        <div>
-            姓名<input type="text" name="name" name-show="姓名" required maxlength="4" minlength="2">
+        <table>
+            <tr>
+                <td width="74" height="72" class="moviezbt">姓名</td>
+                <td class="validate-field" validate-field='#textfield2' required maxlength="4" minlength="2"
+                    width="477"><label for="textfield2"></label>
+                    <input type="text" name="textfield" id="textfield2" /></td>
+            </tr>
+        </table>
+
+        <div class="validate-field" validate-field='#name' required maxlength="4" minlength="2">
+            姓名2<input type="text" name="name" id="name" name-show="姓名2">
         </div>
+
         <div>
             年龄<input type="text" name="age" name-show="年龄" required maxlength="10" minlength="2">
         </div>
@@ -69,6 +77,13 @@
                 <option value="4">4啊</option>
             </select>
         </div>
+
+        <tr>
+            <td height="117" class="moviezbt">留言</td>
+            <td><label for="textfield4"></label>
+                <label for="textarea"></label>
+                <textarea name="textarea" id="textarea" cols="45" rows="5" required></textarea></td>
+        </tr>
 
 
         <button id="validate1-do">验证</button>

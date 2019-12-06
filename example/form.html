@@ -38,9 +38,18 @@
     <h1>开发表单验证</h1>
     <div id="app"></div>
     <form action="" id="from1">
-        <div>
-            姓名<input type="text" name="name" name-show="姓名" required maxlength="4" minlength="2">
-        </div>
+        <!-- <div class="validate-field" validate-field='#name' required maxlength="4" minlength="2" >
+            姓名<input type="text" name="name" id="name" name-show="姓名" >
+        </div> -->
+        <table>
+            <tr>
+                <td width="74" height="72" class="moviezbt">姓名</td>
+                <td class="validate-field" validate-field='#textfield2' required maxlength="4" minlength="2"
+                  width="477"><label for="textfield2"></label>
+                  <input type="text" name="textfield" id="textfield2" /></td>
+              </tr>
+        </table>
+    
         <div>
             年龄<input type="text" name="age" name-show="年龄" required maxlength="10" minlength="2">
         </div>
@@ -90,7 +99,7 @@
     </form>
 
     <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://unpkg.com/zoo-common@1.0.2/dist/js/form.js"></script>
+    <script src="https://unpkg.com/zoo-common/dist/js/form.js"></script>
     <script>
 
         $(function () {

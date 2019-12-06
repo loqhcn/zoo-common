@@ -47,6 +47,7 @@ class FormValidate {
             //数字类型
             integer: { rule: 'integer' },
             number: { rule: 'number' },
+            email: { rule: 'email' },
         }
 
         /**
@@ -84,9 +85,9 @@ class FormValidate {
      * @return 详细验证配置对象
      */
     parseRule(el, valSelecter) {
+       
         el = $(el)[0];
         // valSelecter = valSelecter ? $(valSelecter)[0] : false;
-
         if (el.type == 'radio') {
             return {
                 error: 'radio需要使用父容器验证',
@@ -123,7 +124,7 @@ class FormValidate {
         // 特殊表单组件 radio checkbox
         if (this.parseRuleData[valSelecterType]) {
             elVal = this.parseRuleData[valSelecterType](dataEl);
-            console.log(valSelecterType, elVal, elName)
+            // console.log(valSelecterType, elVal, elName)
         }
 
         if (!elName) {
@@ -219,7 +220,9 @@ class FormValidate {
 
             //显示新错误 或 验证成功
             if (!validate.check(data, true)) {
-                let errmsg = validate.getError();
+                let errmsg  = $(el).attr('errormsg') || validate.getError();
+                 //错误消息
+                
                 this.option.showError ? this.option.showError(el, errmsg) : this.showError(el, errmsg);
             }
 
@@ -283,12 +286,18 @@ class FormValidate {
      * @return { validateRules验证规则, validateFieldsEl与验证关联的el, data数据  }
      */
     parseValidateElItem(items) {
+
         let elRule = [];
+        let parseedRules = {};
+        let parseItemLog = [];
         //验证的字段
         for (let index = 0; index < items.length; index++) {
             const el = items[index];
             let valSelecter = $(el).attr('validate-field') || false;
             let rule = this.parseRule(el, valSelecter)
+
+
+
             if (rule.error) {
                 // 规则配置错误信息
                 if (this.debug) {
@@ -296,8 +305,21 @@ class FormValidate {
                 }
                 continue;
             }
+
+
+            //防止重复添加同名称规则
+            if (parseedRules[rule.name]) {
+                parseItemLog.push(`已存在规则${rule.name}`);
+                continue;
+            }
+            parseedRules[rule.name] = rule;
             elRule.push(rule);
+
         }
+        if (this.debug) {
+            console.log('解析出规则', elRule);
+        }
+
         //
         //rule获取 字符串内容
         let validateRules = {}
@@ -318,7 +340,9 @@ class FormValidate {
             validateFieldsAction[element.name] = element.actionName
 
         }
-
+        if (this.debug && parseItemLog.length) {
+            console.log('规则解析记录', parseItemLog)
+        }
         return {
             //验证规则 Validate.js参数
             validateRules,
@@ -366,7 +390,7 @@ $.fn.validateForm = function (option) {
     formValidate.removeAllError(this);
 
     //解析验证的节点
-    var items = $(`.${option.validateClass},input,select`);
+    var items = $(`.${option.validateClass},input,select,textarea`);
     const {
         validateRules,
         validateFieldsEl,
@@ -380,7 +404,6 @@ $.fn.validateForm = function (option) {
     //错误显示
     if (!validate.check(data, true)) {
         let errors = validate.getErrors();
-        console.log(validateFieldsAction);
         for (let index = 0; index < errors.length; index++) {
             const err = errors[index];
             //错误消息
@@ -393,7 +416,10 @@ $.fn.validateForm = function (option) {
             formValidate.registerValidate(validateFieldsEl[err.field], validateFieldsAction[err.field] || 'blur', option.removeError);
 
         }
+        return false;
     }
+
+    return true;
 }
 
 export default formValidate;
