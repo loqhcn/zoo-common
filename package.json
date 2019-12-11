@@ -1,6 +1,6 @@
 {
   "name": "zoo-common",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,11 @@
     "build:css": "sass ./src/style/index.scss ./dist/css/index.css",
     "serve": "webpack-dev-server --open"
   },
+  "files": [
+    "dist",
+    "docs",
+    "public"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",

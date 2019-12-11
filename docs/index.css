@@ -1,0 +1,11 @@
+.form-demo form>div{
+    margin-top: 30px;
+    display: block;
+}
+.form-demo  button{
+    margin-top: 30px;
+}
+
+.form-demo .validate-err-msg{
+    margin-top: 0;
+}
