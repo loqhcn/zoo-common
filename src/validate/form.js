@@ -34,20 +34,19 @@ class FormValidate {
             //长度
             maxlength: { rule: 'max' },
             minlength: { rule: 'min' },
-            //手机号
-            mobile: { rule: 'mobile' },
             //大小范围
             lt: { rule: 'lt' },
             gt: { rule: 'gt' },
-            //身份证
-            idcard: { rule: 'idcard' },
             //是否在范围
             notin: { rule: 'notIn' },
             in: { rule: 'in' },
             //数字类型
             integer: { rule: 'integer' },
             number: { rule: 'number' },
+            //手机号 邮箱 身份证
+            mobile: { rule: 'mobile' },
             email: { rule: 'email' },
+            idcard: { rule: 'idcard' },
         }
 
         /**
@@ -85,7 +84,7 @@ class FormValidate {
      * @return 详细验证配置对象
      */
     parseRule(el, valSelecter) {
-       
+
         el = $(el)[0];
         // valSelecter = valSelecter ? $(valSelecter)[0] : false;
         if (el.type == 'radio') {
@@ -95,13 +94,13 @@ class FormValidate {
                 el: el
             }
         }
-        if (el.type == 'checkbox') {
-            return {
-                error: 'checkbox需要使用父容器验证',
-                errorType: 'checkbox',
-                el: el
-            }
-        }
+        // if (el.type == 'checkbox') {
+        //     return {
+        //         error: 'checkbox需要使用父容器验证',
+        //         errorType: 'checkbox',
+        //         el: el
+        //     }
+        // }
         // console.log(el)
         let attrNames = el.getAttributeNames();
         let ruleNames = Object.keys(this.rules);
@@ -120,11 +119,12 @@ class FormValidate {
         if (valSelecter) {
             elName = $(valSelecter).attr('name');
             elVal = $(valSelecter).val()
+            // console.log('parse',valSelecter,elVal,valSelecterType)
         }
         // 特殊表单组件 radio checkbox
         if (this.parseRuleData[valSelecterType]) {
             elVal = this.parseRuleData[valSelecterType](dataEl);
-            // console.log(valSelecterType, elVal, elName)
+
         }
 
         if (!elName) {
@@ -168,14 +168,16 @@ class FormValidate {
 
         //
         // console.log('valSelecterType:'+valSelecterType)
-        let actionName = this.componentsActions[valSelecterType] ? this.componentsActions[valSelecterType] : 'blur';
+        let actionName = $(el).attr('validate-action') ||
+            (this.componentsActions[valSelecterType] ? this.componentsActions[valSelecterType] : 'blur');
+
 
 
         return {
             error: false,
             //验证信息位置
             el: el,
-            dataEl: dataEl,
+            dataEl: $(dataEl)[0],
             //你name
             name: elName,
             //显示name
@@ -188,7 +190,6 @@ class FormValidate {
             ruleObj: ruleObj,
             // 当元素验证错误 完善后再次出发验证的事件 
             actionName: actionName,
-
             ruleParseData
         }
     }
@@ -198,12 +199,12 @@ class FormValidate {
      * 
      * @param {function} removeAction 移除错误消息的回调
      */
-    registerValidate(el, action, option) {
+    registerValidate(el, action, dataEl) {
+
         action = action || 'change';
 
-        $(el).on(action, () => {
+        const updateAction = (e) => {
             //验证
-            console.log('验证', action);
 
             //验证成功 移除验证事件监听
             var items = [el];
@@ -213,20 +214,33 @@ class FormValidate {
                 data
             } = formValidate.parseValidateElItem(items);
             //验证
-            var validate = new Validate(validateRules);
+            var validate = new Validate(validateRules, this.option.errorMsg);
 
             //移除错误
-            this.option.removeAction ? this.option.removeError(el) : this.removeError(el);
+            // ( this.option.removeAction || this.removeError )(el,dataEl);
+            this.option.removeAction ? this.option.removeError : this.removeError(el, dataEl);
 
             //显示新错误 或 验证成功
             if (!validate.check(data, true)) {
-                let errmsg  = $(el).attr('errormsg') || validate.getError();
-                 //错误消息
-                
-                this.option.showError ? this.option.showError(el, errmsg) : this.showError(el, errmsg);
-            }
+                let err = validate.getErrorInfo();
 
-        })
+                let errmsg = $(el).attr('errormsg') || err.msg;
+
+                if (this.option.placeholderMsg && dataEl.placeholder && err.rule == 'require') {
+
+                    errmsg = dataEl.placeholder;
+                }
+
+                //错误消息
+                this.option.showError ? this.option.showError(errmsg, el, dataEl, true) : this.showError(errmsg, el, dataEl, true);
+            }
+        }
+
+        $(el).on(action, updateAction)
+        if (dataEl.type != 'radio') {
+            $(dataEl).on(action, updateAction)
+        }
+
 
     }
 
@@ -251,7 +265,8 @@ class FormValidate {
      * @param {*} el 
      * @param {*} error 
      */
-    showError(el, errmsg) {
+    showError(errmsg, el, dataEl) {
+
         el.validateError = true;
         //显示错误的类
         $(el).addClass(this.option.errorClass);
@@ -261,8 +276,8 @@ class FormValidate {
      * 移除错误
      * @param {*} el 
      */
-    removeError(el) {
-        console.log('移除错误消息', el);
+    removeError(el, dataEl) {
+
         $(el).removeClass(this.option.errorClass);
         if (el.validateError == true) {
             let err = $(el).next();
@@ -276,7 +291,6 @@ class FormValidate {
         $('.validate-err-msg').remove();
 
     }
-
 
     /**
      * 解析需要处理的节点
@@ -294,9 +308,8 @@ class FormValidate {
         for (let index = 0; index < items.length; index++) {
             const el = items[index];
             let valSelecter = $(el).attr('validate-field') || false;
+
             let rule = this.parseRule(el, valSelecter)
-
-
 
             if (rule.error) {
                 // 规则配置错误信息
@@ -306,7 +319,6 @@ class FormValidate {
                 continue;
             }
 
-
             //防止重复添加同名称规则
             if (parseedRules[rule.name]) {
                 parseItemLog.push(`已存在规则${rule.name}`);
@@ -314,8 +326,8 @@ class FormValidate {
             }
             parseedRules[rule.name] = rule;
             elRule.push(rule);
-
         }
+
         if (this.debug) {
             console.log('解析出规则', elRule);
         }
@@ -325,6 +337,9 @@ class FormValidate {
         let validateRules = {}
         //验证节点 与 名称关联 方便显示消息 
         let validateFieldsEl = {}
+        let validateFieldsDataEl = {}
+
+        // 监听事件 补全后重新验证
         let validateFieldsAction = {};
 
         let data = {}
@@ -337,17 +352,20 @@ class FormValidate {
             data[element.name] = element.val
             //关联信息
             validateFieldsEl[element.name] = element.el
-            validateFieldsAction[element.name] = element.actionName
+            validateFieldsDataEl[element.name] = element.dataEl
 
+            validateFieldsAction[element.name] = element.actionName
         }
+
         if (this.debug && parseItemLog.length) {
             console.log('规则解析记录', parseItemLog)
         }
         return {
             //验证规则 Validate.js参数
             validateRules,
-            //关联字段的el
+            //关联字段的el 数据位置的el
             validateFieldsEl,
+            validateFieldsDataEl,
             //数据列表
             data,
             validateFieldsAction
@@ -380,8 +398,16 @@ $.fn.validateForm = function (option) {
 
         debug: option.debug,
         //验证错误的显示与移除
-        // showError: option.showError || formValidate.showError,
-        // removeError: option.removeError || formValidate.removeError
+        showError: option.showError || false,
+        removeError: option.removeError || false,
+        removeAllError: option.removeAllError || false,
+
+        //当required验证错误时, 尝试读取placeholder内容作为错误消息
+        placeholderMsg: option.placeholderMsg !== undefined ? option.placeholderMsg : false,
+        //只要一条错误消息? bool
+        onlyOneError: option.onlyOneError !== undefined ? option.onlyOneError : false,
+        errorMsg: option.errorMsg || {},
+        disableReValidate: option.disableReValidate !== undefined ? option.disableReValidate : false,
     }
     formValidate.debug = option.debug;
     formValidate.setOption(option);
@@ -389,37 +415,52 @@ $.fn.validateForm = function (option) {
     //移除所有显示错误
     formValidate.removeAllError(this);
 
-    //解析验证的节点
+    //解析验证的节点的配置规则
     var items = $(`.${option.validateClass},input,select,textarea`);
     const {
         validateRules,
         validateFieldsEl,
+        validateFieldsDataEl,
         data,
-        validateFieldsAction
+        validateFieldsAction,
     } = formValidate.parseValidateElItem(items);
 
     //验证
-    var validate = new Validate(validateRules);
+    var validate = new Validate(validateRules, option.errorMsg);
+    validate.debug = option.debug;
 
-    //错误显示
-    if (!validate.check(data, true)) {
+    if (!validate.check(data, !option.onlyOneError)) {
+        //错误显示  
         let errors = validate.getErrors();
+
         for (let index = 0; index < errors.length; index++) {
             const err = errors[index];
+            let errEl = validateFieldsEl[err.field];
+            let errDataEl = validateFieldsDataEl[err.field];
+
             //错误消息
             let errmsg = $(validateFieldsEl[err.field]).attr('errormsg') || err.msg;
+
+            if (option.placeholderMsg && errDataEl.placeholder && err.rule == 'require') {
+                errmsg = errDataEl.placeholder;
+            }
+
             //展示错误
-            option.showError ? option.showError(validateFieldsEl[err.field], errmsg)
-                : formValidate.showError(validateFieldsEl[err.field], errmsg);
+            option.showError ? option.showError(errmsg, errEl, errDataEl)
+                : formValidate.showError(errmsg, errEl, errDataEl);
 
             //注册重新验证事件
-            formValidate.registerValidate(validateFieldsEl[err.field], validateFieldsAction[err.field] || 'blur', option.removeError);
+            let regAction = validateFieldsAction[err.field] || 'blur';
+            if (!option.disableReValidate) {
+                formValidate.registerValidate(errEl, regAction, errDataEl);
+            }
 
         }
         return false;
     }
-
+    //验证成功
     return true;
+
 }
 
 export default formValidate;

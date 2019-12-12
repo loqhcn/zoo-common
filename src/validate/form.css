@@ -5,6 +5,7 @@
 .validate-err-msg {
     margin: 0;
     position: relative;
+    display: unset;
 }
 
 .validate-err-msg-content {

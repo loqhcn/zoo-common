@@ -165,6 +165,92 @@
 </script>
 
 
+## 配置
+
+
+
+- `disableReValidate:Boolean` 禁用 验证错误后再更正 后的重新验证,
+- `onlyOneError:Boolean` 只显示第一条错误
+- `placeholderMsg:Boolean` 当required验证错误时, 尝试读取placeholder内容作为错误消息
+- `validateClass:String` 默认validate-field  选择某个class作为验证容器, 验证规则写在容器上面, 值在value上
+
+> 自定义错误实现
+
+- `showError:function(错误消息,el,数据所在el,是否为重新验证:bool)` 自定义错误显示
+- `removeError:function(el,数据所在el)` 自定义隐藏错误显示(重新验证后)
+- `removeAllError:function()` 清除所有错误
+- `errorMsg:Object` 自定义错误消息
+
+> `字段名称.规则名` 规则名参考`已实现规则`
+
+```javascript
+
+ errorMsg:{
+                "name.require":"名字必须填写哦",
+                "name.max":"名字嘴唇昂",
+            },
+ 
+```
+
+```
+
+<div class="validate-field" validate-field='[name="check1"]' required errormsg="请阅读协议">
+  <input type="checkbox" name="check1"> 同意协议
+</div>
+<script>
+ var res = $('#from1').validateForm({
+          //选择某个class作为验证容器
+          validateClass: 'validate-field',
+
+  });
+</script>
+
+```
+
+- `errorClass:String` 默认 'validate-err', 验证错误的时候 为验证 元素(input) 或 容器 追加一个class
+
+```
+<script>
+$('#from').validateForm({
+  //选择某个class作为验证容器
+  validateClass: 'validate-field',
+  //验证错误的时候 为元素追加一个
+  errorClass: 'validate-err',
+});
+</script>
+
+```
+
+## 已实现规则
+
+- 验证依赖validate.js的规则
+
+``` javascript
+
+  {
+            //必填
+            required: { rule: 'require' },
+            //长度
+            maxlength: { rule: 'max' },
+            minlength: { rule: 'min' },
+            //大小范围
+            lt: { rule: 'lt' },
+            gt: { rule: 'gt' },
+            //是否在范围
+            notin: { rule: 'notIn' },
+            in: { rule: 'in' },
+            //数字类型
+            integer: { rule: 'integer' },
+            number: { rule: 'number' },
+            //手机号 邮箱 身份证
+            mobile: { rule: 'mobile' },
+            email: { rule: 'email' },
+            idcard: { rule: 'idcard' },
+  }
+
+```
+
+
 ## 使用说明
 - 完全使用代码做验证
 

@@ -236,8 +236,8 @@ class Validate {
 
                     let msg = `${pNameShow}参数错误`
                     //配置的消息
-                    if (this.messageRuleSetting[`${vName}.${pName}`]) {
-                        msg = this.messageRuleSetting[`${vName}.${pName}`];
+                    if (this.messageRuleSetting[`${pName}.${vName}`]) {
+                        msg = this.messageRuleSetting[`${pName}.${vName}`];
                     }
                     //通过名称配置的消息
                     else if (this.messageRuleSetting[pName]) {
@@ -299,6 +299,10 @@ class Validate {
     getError() {
         return this.errorMsg;
     }
+    getErrorInfo() {
+        return this.errorMsgs[0];
+    }
+
     //所有错误消息 当check(data,true)时才会验证所有的
     getErrors() {
         return this.errorMsgs;

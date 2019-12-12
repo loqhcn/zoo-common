@@ -1,6 +1,6 @@
 {
   "name": "zoo-common",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,14 +8,14 @@
     "build": "webpack",
     "build:validatejs": "webpack --config build/validatejs.webpack.config.js",
     "build:form": "webpack --config build/form.webpack.config.js",
-
     "build:css": "sass ./src/style/index.scss ./dist/css/index.css",
     "serve": "webpack-dev-server --open"
   },
   "files": [
     "dist",
     "docs",
-    "public"
+    "public",
+    "src"
   ],
   "keywords": [],
   "author": "",
@@ -37,5 +37,4 @@
   "dependencies": {
     "jquery": "^3.4.1"
   }
-  
 }
