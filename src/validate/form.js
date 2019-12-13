@@ -2,8 +2,8 @@
 
 import Validate from './Validate.js'
 import './form.css'
+//jsx语法
 import { parseJsx, render } from './../jsx/parseJsx'
-
 const dom = parseJsx;
 function DomFrag() {
     console.log('DomFrag', arguments);

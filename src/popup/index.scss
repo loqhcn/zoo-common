@@ -1,0 +1,104 @@
+$color-border: rgb(107, 103, 103);
+$color-msg: black;
+$color-msg-bg: rgba(0, 0, 0, 0.7);
+//toast颜色
+$color-msg-toast: white;
+
+//决定定位的居中
+@mixin fixed-center {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+//弹出层默认边框
+@mixin popup-border-default {
+  border: 1px solid $color-border;
+  border-radius: 4px;
+}
+
+.zoo-popup {
+  box-sizing: border-box;
+
+  &.zoo-popup-alert {
+    position: fixed;
+    z-index: 100;
+    min-width: 200px;
+
+    animation: zoo-popup-fade 1s;
+    @include fixed-center;
+    @include popup-border-default;
+
+    // 消息
+    p {
+      color: $color-msg;
+    }
+    // 按钮
+    button {
+      text-align: center;
+      width: 100%;
+      height: 20px;
+    }
+  }
+  //轻提示
+  &.zoo-popup-toast {
+    position: fixed;
+    @include fixed-center;
+    padding: 5px 15px;
+    background-color: $color-msg-bg;
+    color: $color-msg-toast;
+    border-radius: 4px;
+
+    line-height: 1;
+    align-items: center;
+    border: none;
+  }
+
+  //fiexd居中承载容器
+  &.zoo-popup-container-center {
+    width: 1px;
+    height: 1px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    & > div {
+      position: absolute;
+    }
+  }
+}
+
+//确认框
+.zoo-popup-confirm {
+  @include popup-border-default;
+  min-width: 100px;
+  display: block;
+  // 消息
+  p {
+    color: $color-msg;
+  }
+  .btns{
+      width: 100%;
+      text-align: center;
+  }
+}
+
+// 动画
+
+//逐渐显示
+@keyframes zoo-popup-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+//向上
+@keyframes zoo-popup-up {
+  from {
+    transform: translate();
+  }
+  to {
+    opacity: 1;
+  }
+}

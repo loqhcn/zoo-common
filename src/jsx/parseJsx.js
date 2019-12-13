@@ -1,6 +1,9 @@
 
 
 function render(vnode) {
+    if(!vnode){
+        return null;
+    }
     // Strings just convert to #text Nodes:
     if (vnode.split) return document.createTextNode(vnode);
     // create a DOM element with the nodeName of our VDOM element:

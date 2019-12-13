@@ -5,12 +5,12 @@ const webpack = require('webpack');
 
 module.exports = {
     entry: {
-        Validate: path.resolve(process.cwd(), './src/validate/Validate.js')
+        zooPopup: path.resolve(process.cwd(), './src/popup/index.js')
     },
     output: {
         filename: '[name].js',
         path: path.resolve(process.cwd(), './dist/js'),
-        library: 'Validate',
+        library: 'zooPopup',
         libraryTarget: 'umd'
     },
     //开发服务
@@ -18,26 +18,7 @@ module.exports = {
         contentBase: path.resolve(process.cwd(), './dist'),
     },
     plugins: [
-        //清理dist
-        new CleanWebpackPlugin(),
         
-        //打包form
-        new HtmlWebpackPlugin({
-            template: path.resolve(process.cwd(), './public/index.html'),
-            filename: 'index.html',
-            title: 'Zoo Coffee common',
-            chunks: [
-                'index'
-            ],
-        }),
-
-        //注册jquery
-        new webpack.ProvidePlugin({
-            $: 'jquery',
-            jQuery: 'jquery',
-            jquery: 'jquery',
-        })
-
     ],
     module: {
         //加载css
