@@ -1,6 +1,13 @@
 
+
 import Validate from './Validate.js'
 import './form.css'
+import { parseJsx, render } from './../jsx/parseJsx'
+
+const dom = parseJsx;
+function DomFrag() {
+    console.log('DomFrag', arguments);
+}
 
 class FormValidate {
     constructor() {
@@ -102,7 +109,22 @@ class FormValidate {
         //     }
         // }
         // console.log(el)
-        let attrNames = el.getAttributeNames();
+
+        //el所有属性
+        let attrNames = [];
+        for (let index = 0; index < el.attributes.length; index++) {
+            const elementName = el.attributes[index].name;
+            //require 始终第一个验证 交换顺序
+            if(elementName=='required' && attrNames.length){
+                elementName =   attrNames[0];
+                attrNames[0] =  'required';
+            }
+            attrNames.push(elementName);
+        }
+        // console.log( el.attributes);
+        // console.log(attrNames);
+
+        //let attrNames = el.getAttributeNames(); 不兼容ie 放弃使用
         let ruleNames = Object.keys(this.rules);
 
         // 获取元素的name和val  @读取方式有待改进,目前只支持普通input框
@@ -270,7 +292,12 @@ class FormValidate {
         el.validateError = true;
         //显示错误的类
         $(el).addClass(this.option.errorClass);
-        $(el).after(`<div class="validate-err-msg"><div class="validate-err-msg-content">${errmsg}</div></div>`)
+        let after =
+            <label class="validate-err-msg">
+                <div class="validate-err-msg-content">{errmsg}</div>
+            </label>
+        after = render(after);
+        $(el).after(after)
     }
     /**
      * 移除错误
@@ -426,6 +453,7 @@ $.fn.validateForm = function (option) {
     } = formValidate.parseValidateElItem(items);
 
     //验证
+    console.log(validateRules);
     var validate = new Validate(validateRules, option.errorMsg);
     validate.debug = option.debug;
 

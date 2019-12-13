@@ -5,12 +5,11 @@
 .validate-err-msg {
     margin: 0;
     position: relative;
-    display: unset;
 }
 
 .validate-err-msg-content {
     position: absolute;
-    width: 100%;
+    display: block;
     color: red;
-    width: max-content;
+    white-space: nowrap;
 }

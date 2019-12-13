@@ -47,8 +47,9 @@ module.exports = {
         //加载css
         rules: [
             {
-                test: /\.js$/,
-                use: 'babel-loader', exclude: /node_modules/
+                test: /\.(jsx?|babel|es6)$/,
+                loader: 'babel-loader',
+                exclude: /(node_modules|bower_components)/,
             },
             {
                 test: /\.css$/,

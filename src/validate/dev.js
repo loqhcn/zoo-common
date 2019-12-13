@@ -28,7 +28,7 @@ $(function () {
             // },
 
             //则只验证第一条
-            // onlyOneError:true,
+            onlyOneError:false,
             //显示调试信息
             debug: false,
 
@@ -37,8 +37,8 @@ $(function () {
                 "name.max":"名字嘴唇昂",
             },
             //当required验证错误时, 尝试读取placeholder内容作为错误消息
-            // placeholderMsg: true,
-
+            placeholderMsg: true,
+            
         });
 
         e.preventDefault();

@@ -8,7 +8,7 @@ module.exports = {
         index: "./src/index.js",
         form: "./src/form.js",
         validate: "./src/validate/dev.js",
-
+        popup_dev: "./src/popup/dev.js",
     },
     output: {
         filename: '[name].js',
@@ -17,6 +17,9 @@ module.exports = {
         // publicPath: '/',
         // library: 'Validate',
         // libraryTarget: 'umd'
+    },
+    resolve: {
+        extensions: [ '.js', '.jsx']
     },
     //开发服务
     devServer: {
@@ -45,6 +48,16 @@ module.exports = {
             ],
         }),
 
+        //popup开发页面
+        new HtmlWebpackPlugin({
+            template: 'public/popup.html',
+            filename: 'popup.html',
+            title: 'popup开发页面',
+            chunks: [
+                'popup_dev'
+            ],
+        }),
+
 
         //注册jquery
         new webpack.ProvidePlugin({
@@ -58,8 +71,9 @@ module.exports = {
         //加载css
         rules: [
             {
-                test: /\.js$/,
-                use: 'babel-loader', exclude: /node_modules/
+                test: /\.(jsx?|babel|es6)$/,
+                loader: 'babel-loader',
+                exclude: /(node_modules|bower_components)/,
             },
             {
                 test: /\.css$/,
