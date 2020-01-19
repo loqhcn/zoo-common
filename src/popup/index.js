@@ -12,7 +12,9 @@ class Popup {
     constructor() {
         //递增弹出层层级
         this.layerIndex = 1000;
-
+        this.config = {
+            
+        }
     }
 
     // 提示消息
@@ -43,8 +45,9 @@ class Popup {
     }
 
     message() {
-
+        
     }
+
     // 弹出提示
     alert(option) {
         //配置读取
@@ -102,7 +105,7 @@ class Popup {
 
         let msgBody = render(nodes);
         //显示内容
-        window.document.body.appendChild(msgBody);
+        this.appendEl(msgBody);
         //关闭
         msgBody.querySelector('.mulo-cancel').onclick = () => {
             msgBody.remove();
@@ -110,6 +113,11 @@ class Popup {
         msgBody.querySelector('.mulo-success').onclick = () => {
             msgBody.remove();
         }
+    }
+    
+    //元素显示到页面
+    appendEl(el){
+        window.document.body.appendChild(el);
     }
 
     //继承
