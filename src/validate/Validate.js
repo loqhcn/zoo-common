@@ -24,7 +24,6 @@ class Validate {
             min(v, vmin) {
                 return !(('' + v).length < parseInt(vmin));
             },
-
             //大于
             '<': function () {
                 return this.validateRules.lt(...arguments);

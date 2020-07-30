@@ -115,9 +115,9 @@ class FormValidate {
         for (let index = 0; index < el.attributes.length; index++) {
             const elementName = el.attributes[index].name;
             //require 始终第一个验证 交换顺序
-            if(elementName=='required' && attrNames.length){
-                elementName =   attrNames[0];
-                attrNames[0] =  'required';
+            if (elementName == 'required' && attrNames.length) {
+                elementName = attrNames[0];
+                attrNames[0] = 'required';
             }
             attrNames.push(elementName);
         }
@@ -304,7 +304,6 @@ class FormValidate {
      * @param {*} el 
      */
     removeError(el, dataEl) {
-
         $(el).removeClass(this.option.errorClass);
         if (el.validateError == true) {
             let err = $(el).next();
@@ -316,7 +315,6 @@ class FormValidate {
     removeAllError(totalContainer) {
         $(totalContainer).find(this.option.errorClass).removeClass(this.option.errorClass);
         $('.validate-err-msg').remove();
-
     }
 
     /**
